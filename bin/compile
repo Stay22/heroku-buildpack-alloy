@@ -6,78 +6,20 @@ set -o pipefail
 
 # Parse and derive params
 BUILD_DIR=$1
-CACHE_DIR=$2
+
+ALLOY_VERSION="1.4.2"
 
 BUILDPACK_DIR=$(cd "$(dirname "$0")"; cd ..; pwd)
-
-# Store which STACK we are running on in the cache to bust the cache if it changes
-if [ -f $CACHE_DIR/.apt/STACK ]; then
-  CACHED_STACK=$(cat "$CACHE_DIR/.apt/STACK")
-else
-  CACHED_STACK=$STACK
-fi
-
-# Ensure we store the STACK in the cache for next time.
-mkdir -p "$CACHE_DIR/.apt"
-echo "$STACK" > "$CACHE_DIR/.apt/STACK"
 
 # Load formating tools
 source "$BUILDPACK_DIR/bin/common.sh"
 
-# Setup apt environment
-APT_DIR="$BUILD_DIR/.apt"
-APT_CACHE_DIR="$CACHE_DIR/apt/cache"
-APT_STATE_DIR="$CACHE_DIR/apt/state"
-APT_REPO_FILE="$BUILDPACK_DIR/etc/grafana.list"
-APT_OPTIONS="-o debug::nolocking=true -o dir::cache=$APT_CACHE_DIR -o dir::state=$APT_STATE_DIR"
-
-# Create build and run environment
-mkdir -p "$APT_CACHE_DIR/archives/partial"
-mkdir -p "$APT_STATE_DIR/lists/partial"
-mkdir -p "$APT_DIR"
-
-if [[ $CACHED_STACK == $STACK ]]; then
-  # STACK have not changed, reusing cache
-  topic "Stack haven't changed, reusing cache"
-else
-  # STACK changed, clean up APT cache
-  topic "Detected Stack changes, flushing cache"
-  rm -rf $APT_CACHE_DIR
-  rm -rf $APT_STATE_DIR
-  mkdir -p "$APT_CACHE_DIR/archives/partial"
-  mkdir -p "$APT_STATE_DIR/lists/partial"
-fi
-
-# Install GPG key
-topic "Install gpg key for Grafana APT Repository"
-
-GRAFANA_APT_KEYRING="$BUILDPACK_DIR/grafana-archive-keyring.gpg"
-GRAFANA_APT_KEYS=("gpg.key")
-GRAFANA_APT_KEYS_URL="https://apt.grafana.com"
-GPG_HOME_DIR="$BUILD_DIR/.gnupg"
-mkdir -p "$GPG_HOME_DIR"
-touch "$GRAFANA_APT_KEYRING"
-
-for key in "${GRAFANA_APT_KEYS[@]}"; do
-  curl -o "/tmp/${key}" "${GRAFANA_APT_KEYS_URL}/${key}" | indent
-  gpg --ignore-time-conflict --no-options --no-default-keyring --homedir "$GPG_HOME_DIR" --keyring "$GRAFANA_APT_KEYRING" --import "/tmp/${key}" | indent
-done
-
-echo "deb [signed-by=$GRAFANA_APT_KEYRING] $GRAFANA_APT_KEYS_URL stable main" | tee "$APT_REPO_FILE"
-
-# Install Alloy Agent
-topic "Updating apt caches for Alloy Agent"
-APT_OPTIONS="$APT_OPTIONS -o Dir::Etc::SourceList=$APT_REPO_FILE"
-apt-get "$APT_OPTIONS" update | indent
 topic "Downloading Alloy Agent"
-PACKAGE_NAME="alloy"
-apt-get $APT_OPTIONS -y --force-yes -d install --reinstall --no-install-recommends "$PACKAGE_NAME" | indent
-
-DPKG_STUB="$APT_CACHE_DIR/archives/${PACKAGE_NAME}_1%3a"
-DEB=$(ls -t "$DPKG_STUB"*.deb | head -n 1)
+curl -OL "https://github.com/grafana/alloy/releases/download/v$ALLOY_VERSION/alloy-$ALLOY_VERSION-1.amd64.deb"
 
 topic "Installing Alloy Agent"
-dpkg -x "$DEB" "$APT_DIR"
+mkdir -p "$BUILD_DIR/bin"
+dpkg -x "alloy-${ALLOY_VERSION}-1.amd64.deb" "$BUILD_DIR/bin"
 
 # Install the runner
 topic "Installing Alloy runner"

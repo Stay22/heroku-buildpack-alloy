@@ -1,10 +1,7 @@
 #!/usr/bin/env bash
 
-# Setup Locations
-APT_DIR="$HOME/.apt"
-
-# Update Env Vars with new paths for apt packages
-export PATH="$APT_DIR/usr/bin:$PATH"
+# Update Env Vars with new paths
+export PATH="$HOME/bin:$PATH"
 
 # Execute the final run logic.
 if [ -n "$DISABLE_ALLOY_AGENT" ]; then
