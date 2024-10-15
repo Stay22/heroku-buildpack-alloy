@@ -1,0 +1,4 @@
+{
+  "name": "Grafana Alloy Agent Heroku Buildpack",
+  "description": "This Heroku Buildpack installs the Grafana Alloy Agent in your Heroku dyno to collect system metrics, custom application metrics, and traces"
+}
