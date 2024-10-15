@@ -18,8 +18,8 @@ topic "Downloading Alloy Agent"
 curl -OL "https://github.com/grafana/alloy/releases/download/v$ALLOY_VERSION/alloy-$ALLOY_VERSION-1.amd64.deb"
 
 topic "Installing Alloy Agent"
-mkdir -p "$BUILD_DIR/bin"
-dpkg -x "alloy-${ALLOY_VERSION}-1.amd64.deb" "$BUILD_DIR/bin"
+mkdir -p "$BUILD_DIR/alloy"
+dpkg -x "alloy-${ALLOY_VERSION}-1.amd64.deb" "$BUILD_DIR/alloy"
 
 # Install the runner
 topic "Installing Alloy runner"

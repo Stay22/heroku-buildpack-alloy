@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Update Env Vars with new paths
-export PATH="$HOME/bin:$PATH"
+export PATH="$HOME/alloy/usr/bin:$PATH"
 
 # Execute the final run logic.
 if [ -n "$DISABLE_ALLOY_AGENT" ]; then
