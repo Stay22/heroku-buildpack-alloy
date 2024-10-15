@@ -63,7 +63,7 @@ for key in "${GRAFANA_APT_KEYS[@]}"; do
   gpg --ignore-time-conflict --no-options --no-default-keyring --homedir "$GPG_HOME_DIR" --keyring "$GRAFANA_APT_KEYRING" --import "/tmp/${key}" | indent
 done
 
-echo "deb [signed-by=$GRAFANA_APT_KEYRING] $GRAFANA_APT_KEYS_URL stable main" | sudo tee "$APT_REPO_FILE"
+echo "deb [signed-by=$GRAFANA_APT_KEYRING] $GRAFANA_APT_KEYS_URL stable main" | tee "$APT_REPO_FILE"
 
 # Install Alloy Agent
 topic "Updating apt caches for Alloy Agent"
