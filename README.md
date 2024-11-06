@@ -254,5 +254,8 @@ prometheus.remote_write "grafana_cloud" {
 If the Alloy agent cannot properly start (e.g. because of a misconfiguration in Alloy), the Heroku app will not be prevented from starting, but you will not be able to process telemetry data. If you don't see any telemetry data received by your Grafana or other Open Telemetry backend, you can see the Alloy agent logs in Heroku along with your app. The agent will always attempt to start before your application, so if it fails to start you should be able to see more information there.
 
 ```bash
-heroku logs logs -a <app name>
+heroku logs -a <app name>
 ```
+
+### Disabling the agent
+You can disable the Alloy agent from starting by setting `DISABLE_ALLOY_AGENT=true` in your environment variables.
